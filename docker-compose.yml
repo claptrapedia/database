@@ -1,0 +1,22 @@
+services:
+  postgres:
+    build: .
+    image: claptrapedia-postgres:17.2
+    container_name: claptrapedia-postgres
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_USER: claptrapedia
+      POSTGRES_PASSWORD: claptrapedia
+      POSTGRES_DB: claptrapedia
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U claptrapedia -d claptrapedia"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+volumes:
+  pgdata:
