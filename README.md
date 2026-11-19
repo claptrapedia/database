@@ -9,10 +9,8 @@ CI uses dbmate to apply migrations to staging and production.
 PostgreSQL 17.2 in Docker, listening on `127.0.0.1:5432`.
 
 ```sh
-pnpm run up
+pnpm run rebuild
 ```
-
-`pnpm up` is pnpm's dependency update command, so the database script needs `run`.
 
 ```text
 postgres://claptrapedia:claptrapedia@127.0.0.1:5432/claptrapedia
@@ -20,7 +18,8 @@ postgres://claptrapedia:claptrapedia@127.0.0.1:5432/claptrapedia
 
 | Script | Effect |
 | --- | --- |
-| `pnpm run up` | Build the image and start the database. Waits until it accepts connections. Existing data is kept. |
-| `pnpm run down` | Remove the container. Data volume is kept. |
-| `pnpm run migrate` | Apply migrations. Placeholder until dbmate is wired in. |
 | `pnpm run rebuild` | Remove the container and data volume, start again, then migrate. |
+| `pnpm run migrate` | Apply migrations that have not run and refresh `db/schema.sql`. |
+| `pnpm run rollback` | Roll back the latest migration. `pnpm run rollback -- 2` rolls back that many. |
+| `pnpm run reset` | Roll back every migration, to the point before any migration has run. |
+| `pnpm run seed` | Load seed data. Placeholder for now. |

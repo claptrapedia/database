@@ -1,0 +1,9 @@
+minimumReleaseAgeExclude:
+  - '@dbmate/darwin-arm64@2.38.2'
+  - '@dbmate/darwin-x64@2.38.2'
+  - '@dbmate/linux-arm64@2.38.2'
+  - '@dbmate/linux-arm@2.38.2'
+  - '@dbmate/linux-ia32@2.38.2'
+  - '@dbmate/linux-x64@2.38.2'
+  - '@dbmate/win32-x64@2.38.2'
+  - dbmate@2.38.2
