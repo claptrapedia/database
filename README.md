@@ -19,6 +19,7 @@ postgres://claptrapedia:claptrapedia@127.0.0.1:5432/claptrapedia
 | Script | Effect |
 | --- | --- |
 | `pnpm run rebuild` | Remove the container and data volume, start again, then migrate. |
+| `pnpm run new <struc\|data> <name>` | Create an empty migration. `struc` writes `_STRUC_`, `data` writes `_DATA_`. |
 | `pnpm run migrate` | Apply migrations that have not run and refresh `db/schema.sql`. |
 | `pnpm run rollback` | Roll back the latest migration. `pnpm run rollback -- 2` rolls back that many. |
 | `pnpm run reset` | Roll back every migration, to the point before any migration has run. |

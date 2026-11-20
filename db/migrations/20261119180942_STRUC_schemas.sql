@@ -2,4 +2,4 @@
 CREATE SCHEMA catalogue;
 
 -- migrate:down
-DROP SCHEMA catalogue;
+DROP SCHEMA IF EXISTS catalogue;

@@ -7,10 +7,11 @@
     "node": "26.13.1"
   },
   "scripts": {
+    "new": "node scripts/new-migration.js",
     "migrate": "node scripts/migrate.js migrate",
     "rollback": "node scripts/migrate.js rollback",
     "reset": "node scripts/migrate.js reset",
-    "seed": "node --input-type=module -e \"console.log('seed: placeholder')\"",
+    "seed": "node --input-type=module -e \"import { styleText } from 'node:util'; console.log(styleText('yellow', 'seed: placeholder'))\"",
     "rebuild": "docker compose down -v && docker compose up -d --wait && pnpm run migrate"
   },
   "devDependencies": {

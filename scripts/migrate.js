@@ -1,10 +1,11 @@
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
+import { error, paint } from "./cli.js";
 
 const command = process.argv[2];
 
 if (command !== "migrate" && command !== "rollback" && command !== "reset") {
-  console.error("Usage: node scripts/migrate.js migrate|rollback [count]|reset");
+  error("Usage: node scripts/migrate.js migrate|rollback [count]|reset");
   process.exit(1);
 }
 
@@ -24,7 +25,7 @@ function appliedCount() {
   const applied = Number(status.match(/^Applied:\s+(\d+)/m)?.[1] ?? "NaN");
 
   if (!Number.isInteger(applied)) {
-    console.error("Could not read the applied migration count from dbmate status.");
+    error("Could not read the applied migration count from dbmate status.");
     process.exit(1);
   }
 
@@ -35,24 +36,24 @@ function rollBack(count) {
   const applied = appliedCount();
 
   if (count > applied) {
-    console.error(`Cannot roll back ${count} migration(s). ${applied} applied.`);
+    error(`Cannot roll back ${count} migration(s). ${applied} applied.`);
     process.exit(1);
   }
 
   for (let i = 0; i < count; i += 1) {
-    process.stdout.write(dbmate("down"));
+    process.stdout.write(paint(dbmate("down")));
   }
 }
 
 if (command === "migrate") {
-  process.stdout.write(dbmate("up"));
+  process.stdout.write(paint(dbmate("up")));
 } else if (command === "reset") {
   rollBack(appliedCount());
 } else {
   const raw = process.argv.slice(3).find((arg) => arg !== "--") ?? "1";
 
   if (!/^[1-9]\d*$/.test(raw)) {
-    console.error("Rollback count must be a positive integer.");
+    error("Rollback count must be a positive integer.");
     process.exit(1);
   }
 
@@ -69,12 +70,11 @@ const schema = execFileSync(
   "docker",
   [
     "exec",
-    "claptrapedia-postgres",
+    "claptrapedia",
     "pg_dump",
     "--schema-only",
     "--no-owner",
     "--no-acl",
-    "--no-comments",
     "--no-publications",
     "--no-subscriptions",
     "--no-tablespaces",
