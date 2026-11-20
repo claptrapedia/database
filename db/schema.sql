@@ -55,6 +55,21 @@ COMMENT ON DOMAIN catalogue.non_empty IS 'Text that contains something other tha
 
 
 --
+-- Name: rarity_colour; Type: DOMAIN; Schema: catalogue; Owner: -
+--
+
+CREATE DOMAIN catalogue.rarity_colour AS text
+	CONSTRAINT rarity_colour_check CHECK ((VALUE = ANY (ARRAY['white'::text, 'green'::text, 'blue'::text, 'purple'::text, 'orange'::text, 'pearlescent'::text])));
+
+
+--
+-- Name: DOMAIN rarity_colour; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON DOMAIN catalogue.rarity_colour IS 'Style token for a rarity: white, green, blue, purple, orange or pearlescent. Used as a CSS class, not as a CSS colour name.';
+
+
+--
 -- Name: slug; Type: DOMAIN; Schema: catalogue; Owner: -
 --
 
@@ -135,6 +150,54 @@ COMMENT ON COLUMN catalogue.dlcs."position" IS 'Display order within the game. E
 
 
 --
+-- Name: elements; Type: TABLE; Schema: catalogue; Owner: -
+--
+
+CREATE TABLE catalogue.elements (
+    id catalogue.slug NOT NULL,
+    slug catalogue.slug NOT NULL,
+    name catalogue.non_empty NOT NULL,
+    summary catalogue.summary NOT NULL,
+    description catalogue.non_empty
+);
+
+
+--
+-- Name: TABLE elements; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON TABLE catalogue.elements IS 'A damage element, such as incendiary or shock. Shared across games. Fire is incendiary. none is not a row.';
+
+
+--
+-- Name: COLUMN elements.id; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.elements.id IS 'Stable key, for example incendiary or shock. Not the public URL.';
+
+
+--
+-- Name: COLUMN elements.slug; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.elements.slug IS 'Public URL segment. Editable without changing id.';
+
+
+--
+-- Name: COLUMN elements.summary; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.elements.summary IS 'Required one-line catalogue summary. No line breaks.';
+
+
+--
+-- Name: COLUMN elements.description; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.elements.description IS 'Longer catalogue prose. No length limit.';
+
+
+--
 -- Name: enemies; Type: TABLE; Schema: catalogue; Owner: -
 --
 
@@ -147,7 +210,7 @@ CREATE TABLE catalogue.enemies (
     kind catalogue.enemy_kind NOT NULL,
     family catalogue.slug,
     rank catalogue.slug,
-    summary catalogue.summary,
+    summary catalogue.summary NOT NULL,
     description catalogue.non_empty
 );
 
@@ -212,7 +275,7 @@ COMMENT ON COLUMN catalogue.enemies.rank IS 'Tier within the family, such as whe
 -- Name: COLUMN enemies.summary; Type: COMMENT; Schema: catalogue; Owner: -
 --
 
-COMMENT ON COLUMN catalogue.enemies.summary IS 'One-line catalogue summary. No line breaks.';
+COMMENT ON COLUMN catalogue.enemies.summary IS 'Required one-line catalogue summary. No line breaks.';
 
 
 --
@@ -220,6 +283,57 @@ COMMENT ON COLUMN catalogue.enemies.summary IS 'One-line catalogue summary. No l
 --
 
 COMMENT ON COLUMN catalogue.enemies.description IS 'Longer catalogue prose. No length limit.';
+
+
+--
+-- Name: game_elements; Type: TABLE; Schema: catalogue; Owner: -
+--
+
+CREATE TABLE catalogue.game_elements (
+    game_id catalogue.slug NOT NULL,
+    element_id catalogue.slug NOT NULL
+);
+
+
+--
+-- Name: TABLE game_elements; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON TABLE catalogue.game_elements IS 'The elements that exist in one game. The site uses this list for a game filter. An item does not define it.';
+
+
+--
+-- Name: game_manufacturers; Type: TABLE; Schema: catalogue; Owner: -
+--
+
+CREATE TABLE catalogue.game_manufacturers (
+    game_id catalogue.slug NOT NULL,
+    manufacturer_id catalogue.slug NOT NULL
+);
+
+
+--
+-- Name: TABLE game_manufacturers; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON TABLE catalogue.game_manufacturers IS 'The manufacturers that exist in one game. The site uses this list for a game filter. An item does not define it.';
+
+
+--
+-- Name: game_rarities; Type: TABLE; Schema: catalogue; Owner: -
+--
+
+CREATE TABLE catalogue.game_rarities (
+    game_id catalogue.slug NOT NULL,
+    rarity_id catalogue.slug NOT NULL
+);
+
+
+--
+-- Name: TABLE game_rarities; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON TABLE catalogue.game_rarities IS 'The rarity tiers that exist in one game. The site uses this list for a game filter. An item does not define it.';
 
 
 --
@@ -263,6 +377,102 @@ COMMENT ON COLUMN catalogue.games."position" IS 'Display order across the whole 
 
 
 --
+-- Name: manufacturers; Type: TABLE; Schema: catalogue; Owner: -
+--
+
+CREATE TABLE catalogue.manufacturers (
+    id catalogue.slug NOT NULL,
+    slug catalogue.slug NOT NULL,
+    name catalogue.non_empty NOT NULL,
+    summary catalogue.summary NOT NULL,
+    description catalogue.non_empty
+);
+
+
+--
+-- Name: TABLE manufacturers; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON TABLE catalogue.manufacturers IS 'A brand that makes gear, such as Dahl or Jakobs. Shared across games. A game does not own the brand.';
+
+
+--
+-- Name: COLUMN manufacturers.id; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.manufacturers.id IS 'Stable key, for example jakobs or ss-munitions. Not the public URL.';
+
+
+--
+-- Name: COLUMN manufacturers.slug; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.manufacturers.slug IS 'Public URL segment. Editable without changing id.';
+
+
+--
+-- Name: COLUMN manufacturers.summary; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.manufacturers.summary IS 'Required one-line catalogue summary. No line breaks.';
+
+
+--
+-- Name: COLUMN manufacturers.description; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.manufacturers.description IS 'Longer catalogue prose. No length limit.';
+
+
+--
+-- Name: rarities; Type: TABLE; Schema: catalogue; Owner: -
+--
+
+CREATE TABLE catalogue.rarities (
+    id catalogue.slug NOT NULL,
+    slug catalogue.slug NOT NULL,
+    name catalogue.non_empty NOT NULL,
+    colour catalogue.rarity_colour NOT NULL,
+    "position" integer NOT NULL
+);
+
+
+--
+-- Name: TABLE rarities; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON TABLE catalogue.rarities IS 'A shared rarity tier, such as common or legendary. Not a colour name, and not owned by one game. An item can use more than one tier.';
+
+
+--
+-- Name: COLUMN rarities.id; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.rarities.id IS 'Stable key, for example legendary or pearlescent. Not the public URL.';
+
+
+--
+-- Name: COLUMN rarities.slug; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.rarities.slug IS 'Public URL segment. Editable without changing id.';
+
+
+--
+-- Name: COLUMN rarities.colour; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.rarities.colour IS 'Style token for this tier. white is common, green uncommon, blue rare, purple epic, orange legendary, pearlescent pearlescent.';
+
+
+--
+-- Name: COLUMN rarities."position"; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.rarities."position" IS 'Display order of the ladder, from common upwards. Unique.';
+
+
+--
 -- Name: releases; Type: TABLE; Schema: catalogue; Owner: -
 --
 
@@ -271,7 +481,7 @@ CREATE TABLE catalogue.releases (
     game_id catalogue.slug NOT NULL,
     slug catalogue.slug NOT NULL,
     name catalogue.non_empty NOT NULL,
-    summary catalogue.summary,
+    summary catalogue.summary NOT NULL,
     "position" integer NOT NULL
 );
 
@@ -308,7 +518,7 @@ COMMENT ON COLUMN catalogue.releases.slug IS 'Public URL segment, unique within 
 -- Name: COLUMN releases.summary; Type: COMMENT; Schema: catalogue; Owner: -
 --
 
-COMMENT ON COLUMN catalogue.releases.summary IS 'One-line catalogue summary. No line breaks.';
+COMMENT ON COLUMN catalogue.releases.summary IS 'Required one-line catalogue summary. No line breaks.';
 
 
 --
@@ -352,6 +562,22 @@ ALTER TABLE ONLY catalogue.dlcs
 
 
 --
+-- Name: elements elements_pkey; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.elements
+    ADD CONSTRAINT elements_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: elements elements_slug_key; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.elements
+    ADD CONSTRAINT elements_slug_key UNIQUE (slug);
+
+
+--
 -- Name: enemies enemies_game_id_slug_key; Type: CONSTRAINT; Schema: catalogue; Owner: -
 --
 
@@ -365,6 +591,30 @@ ALTER TABLE ONLY catalogue.enemies
 
 ALTER TABLE ONLY catalogue.enemies
     ADD CONSTRAINT enemies_pkey PRIMARY KEY (id, game_id);
+
+
+--
+-- Name: game_elements game_elements_pkey; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.game_elements
+    ADD CONSTRAINT game_elements_pkey PRIMARY KEY (game_id, element_id);
+
+
+--
+-- Name: game_manufacturers game_manufacturers_pkey; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.game_manufacturers
+    ADD CONSTRAINT game_manufacturers_pkey PRIMARY KEY (game_id, manufacturer_id);
+
+
+--
+-- Name: game_rarities game_rarities_pkey; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.game_rarities
+    ADD CONSTRAINT game_rarities_pkey PRIMARY KEY (game_id, rarity_id);
 
 
 --
@@ -389,6 +639,46 @@ ALTER TABLE ONLY catalogue.games
 
 ALTER TABLE ONLY catalogue.games
     ADD CONSTRAINT games_slug_key UNIQUE (slug);
+
+
+--
+-- Name: manufacturers manufacturers_pkey; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.manufacturers
+    ADD CONSTRAINT manufacturers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: manufacturers manufacturers_slug_key; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.manufacturers
+    ADD CONSTRAINT manufacturers_slug_key UNIQUE (slug);
+
+
+--
+-- Name: rarities rarities_pkey; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.rarities
+    ADD CONSTRAINT rarities_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: rarities rarities_position_key; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.rarities
+    ADD CONSTRAINT rarities_position_key UNIQUE ("position");
+
+
+--
+-- Name: rarities rarities_slug_key; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.rarities
+    ADD CONSTRAINT rarities_slug_key UNIQUE (slug);
 
 
 --
@@ -459,6 +749,54 @@ ALTER TABLE ONLY catalogue.enemies
 
 ALTER TABLE ONLY catalogue.enemies
     ADD CONSTRAINT enemies_game_id_fkey FOREIGN KEY (game_id) REFERENCES catalogue.games(id);
+
+
+--
+-- Name: game_elements game_elements_element_id_fkey; Type: FK CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.game_elements
+    ADD CONSTRAINT game_elements_element_id_fkey FOREIGN KEY (element_id) REFERENCES catalogue.elements(id) ON DELETE CASCADE;
+
+
+--
+-- Name: game_elements game_elements_game_id_fkey; Type: FK CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.game_elements
+    ADD CONSTRAINT game_elements_game_id_fkey FOREIGN KEY (game_id) REFERENCES catalogue.games(id) ON DELETE CASCADE;
+
+
+--
+-- Name: game_manufacturers game_manufacturers_game_id_fkey; Type: FK CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.game_manufacturers
+    ADD CONSTRAINT game_manufacturers_game_id_fkey FOREIGN KEY (game_id) REFERENCES catalogue.games(id) ON DELETE CASCADE;
+
+
+--
+-- Name: game_manufacturers game_manufacturers_manufacturer_id_fkey; Type: FK CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.game_manufacturers
+    ADD CONSTRAINT game_manufacturers_manufacturer_id_fkey FOREIGN KEY (manufacturer_id) REFERENCES catalogue.manufacturers(id) ON DELETE CASCADE;
+
+
+--
+-- Name: game_rarities game_rarities_game_id_fkey; Type: FK CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.game_rarities
+    ADD CONSTRAINT game_rarities_game_id_fkey FOREIGN KEY (game_id) REFERENCES catalogue.games(id) ON DELETE CASCADE;
+
+
+--
+-- Name: game_rarities game_rarities_rarity_id_fkey; Type: FK CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.game_rarities
+    ADD CONSTRAINT game_rarities_rarity_id_fkey FOREIGN KEY (rarity_id) REFERENCES catalogue.rarities(id) ON DELETE CASCADE;
 
 
 --

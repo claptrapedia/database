@@ -23,4 +23,5 @@ postgres://claptrapedia:claptrapedia@127.0.0.1:5432/claptrapedia
 | `pnpm run migrate` | Apply migrations that have not run and refresh `db/schema.sql`. |
 | `pnpm run rollback` | Roll back the latest migration. `pnpm run rollback -- 2` rolls back that many. |
 | `pnpm run reset` | Roll back every migration, to the point before any migration has run. |
+| `pnpm run replay` | Roll back every migration, then apply them again. The container stays. |
 | `pnpm run seed` | Load seed data. Placeholder for now. |

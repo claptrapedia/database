@@ -11,6 +11,7 @@
     "migrate": "node scripts/migrate.js migrate",
     "rollback": "node scripts/migrate.js rollback",
     "reset": "node scripts/migrate.js reset",
+    "replay": "pnpm run reset && pnpm run migrate",
     "seed": "node --input-type=module -e \"import { styleText } from 'node:util'; console.log(styleText('yellow', 'seed: placeholder'))\"",
     "rebuild": "docker compose down -v && docker compose up -d --wait && pnpm run migrate"
   },

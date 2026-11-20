@@ -1,4 +1,9 @@
 -- migrate:up
+
+-- --------------------------------------------------------------------
+-- Tables
+-- --------------------------------------------------------------------
+
 CREATE TABLE catalogue.games (
   id catalogue.slug PRIMARY KEY,
   slug catalogue.slug NOT NULL UNIQUE,
@@ -11,7 +16,7 @@ CREATE TABLE catalogue.releases (
   game_id catalogue.slug NOT NULL REFERENCES catalogue.games (id),
   slug catalogue.slug NOT NULL,
   name catalogue.non_empty NOT NULL,
-  summary catalogue.summary,
+  summary catalogue.summary NOT NULL,
   position integer NOT NULL,
   PRIMARY KEY (id, game_id),
   UNIQUE (game_id, slug),
@@ -29,6 +34,48 @@ CREATE TABLE catalogue.dlcs (
   UNIQUE (game_id, position)
 );
 
+CREATE TABLE catalogue.rarities (
+  id catalogue.slug PRIMARY KEY,
+  slug catalogue.slug NOT NULL UNIQUE,
+  name catalogue.non_empty NOT NULL,
+  colour catalogue.rarity_colour NOT NULL,
+  position integer NOT NULL UNIQUE
+);
+
+CREATE TABLE catalogue.game_rarities (
+  game_id catalogue.slug NOT NULL REFERENCES catalogue.games (id) ON DELETE CASCADE,
+  rarity_id catalogue.slug NOT NULL REFERENCES catalogue.rarities (id) ON DELETE CASCADE,
+  PRIMARY KEY (game_id, rarity_id)
+);
+
+CREATE TABLE catalogue.elements (
+  id catalogue.slug PRIMARY KEY,
+  slug catalogue.slug NOT NULL UNIQUE,
+  name catalogue.non_empty NOT NULL,
+  summary catalogue.summary NOT NULL,
+  description catalogue.non_empty
+);
+
+CREATE TABLE catalogue.game_elements (
+  game_id catalogue.slug NOT NULL REFERENCES catalogue.games (id) ON DELETE CASCADE,
+  element_id catalogue.slug NOT NULL REFERENCES catalogue.elements (id) ON DELETE CASCADE,
+  PRIMARY KEY (game_id, element_id)
+);
+
+CREATE TABLE catalogue.manufacturers (
+  id catalogue.slug PRIMARY KEY,
+  slug catalogue.slug NOT NULL UNIQUE,
+  name catalogue.non_empty NOT NULL,
+  summary catalogue.summary NOT NULL,
+  description catalogue.non_empty
+);
+
+CREATE TABLE catalogue.game_manufacturers (
+  game_id catalogue.slug NOT NULL REFERENCES catalogue.games (id) ON DELETE CASCADE,
+  manufacturer_id catalogue.slug NOT NULL REFERENCES catalogue.manufacturers (id) ON DELETE CASCADE,
+  PRIMARY KEY (game_id, manufacturer_id)
+);
+
 CREATE TABLE catalogue.enemies (
   id catalogue.slug NOT NULL,
   game_id catalogue.slug NOT NULL REFERENCES catalogue.games (id),
@@ -38,7 +85,7 @@ CREATE TABLE catalogue.enemies (
   kind catalogue.enemy_kind NOT NULL,
   family catalogue.slug,
   rank catalogue.slug,
-  summary catalogue.summary,
+  summary catalogue.summary NOT NULL,
   description catalogue.non_empty,
   PRIMARY KEY (id, game_id),
   UNIQUE (game_id, slug),
@@ -47,65 +94,21 @@ CREATE TABLE catalogue.enemies (
     REFERENCES catalogue.dlcs (id, game_id)
 );
 
+-- --------------------------------------------------------------------
+-- Indexes
+-- --------------------------------------------------------------------
+
 CREATE INDEX enemies_game_kind_idx ON catalogue.enemies (game_id, kind);
 CREATE INDEX enemies_game_family_idx ON catalogue.enemies (game_id, family);
 
-COMMENT ON TABLE catalogue.games IS
-  'A Borderlands title, such as Borderlands 1. Distinct from a release and from a DLC.';
-COMMENT ON COLUMN catalogue.games.id IS
-  'Stable key, for example bl1. Not the public URL.';
-COMMENT ON COLUMN catalogue.games.slug IS
-  'Public URL segment. Editable without changing id.';
-COMMENT ON COLUMN catalogue.games.position IS
-  'Display order across the whole catalogue. Unique.';
-
-COMMENT ON TABLE catalogue.releases IS
-  'An edition of one game, such as the original, GOTY or GOTY Enhanced. Not a patch and not a DLC.';
-COMMENT ON COLUMN catalogue.releases.id IS
-  'Stable key within the game, for example goty-enhanced.';
-COMMENT ON COLUMN catalogue.releases.game_id IS
-  'The game this release belongs to.';
-COMMENT ON COLUMN catalogue.releases.slug IS
-  'Public URL segment, unique within the game.';
-COMMENT ON COLUMN catalogue.releases.summary IS
-  'One-line catalogue summary. No line breaks.';
-COMMENT ON COLUMN catalogue.releases.position IS
-  'Display order within the game. Each game has its own 1, 2, 3.';
-
-COMMENT ON TABLE catalogue.dlcs IS
-  'A downloadable pack that introduced content for one game. Not a location where something drops.';
-COMMENT ON COLUMN catalogue.dlcs.id IS
-  'Stable key within the game, for example zombie-island.';
-COMMENT ON COLUMN catalogue.dlcs.game_id IS
-  'The game this DLC belongs to.';
-COMMENT ON COLUMN catalogue.dlcs.slug IS
-  'Public URL segment, unique within the game.';
-COMMENT ON COLUMN catalogue.dlcs.position IS
-  'Display order within the game. Each game has its own 1, 2, 3.';
-
-COMMENT ON TABLE catalogue.enemies IS
-  'A named enemy or a repeating mob. Skag and Badass Skag are separate rows.';
-COMMENT ON COLUMN catalogue.enemies.id IS
-  'Stable key within the game, for example bone-head.';
-COMMENT ON COLUMN catalogue.enemies.game_id IS
-  'The game this enemy belongs to.';
-COMMENT ON COLUMN catalogue.enemies.dlc_id IS
-  'DLC that introduced the enemy. Null for the base game. Not the DLC of a place where it appears.';
-COMMENT ON COLUMN catalogue.enemies.slug IS
-  'Public URL segment, unique within the game.';
-COMMENT ON COLUMN catalogue.enemies.kind IS
-  'named for a unique enemy that is not a boss, such as Bone Head. boss for a boss, such as Sledge. mob for a repeating archetype such as Skag.';
-COMMENT ON COLUMN catalogue.enemies.family IS
-  'Species or archetype, such as skag, bandit or rakk. Shared by every tier of that species.';
-COMMENT ON COLUMN catalogue.enemies.rank IS
-  'Tier within the family, such as whelp, elder or badass. Null when the enemy is not a tier. Not the display order.';
-COMMENT ON COLUMN catalogue.enemies.summary IS
-  'One-line catalogue summary. No line breaks.';
-COMMENT ON COLUMN catalogue.enemies.description IS
-  'Longer catalogue prose. No length limit.';
-
 -- migrate:down
 DROP TABLE IF EXISTS catalogue.enemies;
+DROP TABLE IF EXISTS catalogue.game_manufacturers;
+DROP TABLE IF EXISTS catalogue.manufacturers;
+DROP TABLE IF EXISTS catalogue.game_elements;
+DROP TABLE IF EXISTS catalogue.elements;
+DROP TABLE IF EXISTS catalogue.game_rarities;
+DROP TABLE IF EXISTS catalogue.rarities;
 DROP TABLE IF EXISTS catalogue.dlcs;
 DROP TABLE IF EXISTS catalogue.releases;
 DROP TABLE IF EXISTS catalogue.games;
