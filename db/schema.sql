@@ -377,6 +377,70 @@ COMMENT ON COLUMN catalogue.games."position" IS 'Display order across the whole 
 
 
 --
+-- Name: locations; Type: TABLE; Schema: catalogue; Owner: -
+--
+
+CREATE TABLE catalogue.locations (
+    id catalogue.slug NOT NULL,
+    game_id catalogue.slug NOT NULL,
+    dlc_id catalogue.slug,
+    slug catalogue.slug NOT NULL,
+    name catalogue.non_empty NOT NULL,
+    summary catalogue.summary NOT NULL,
+    description catalogue.non_empty
+);
+
+
+--
+-- Name: TABLE locations; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON TABLE catalogue.locations IS 'A named place in one game, such as Skag Gully. A drop points at a location. The weapon, enemy and mission are separate rows.';
+
+
+--
+-- Name: COLUMN locations.id; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.locations.id IS 'Stable key within the game, for example skag-gully.';
+
+
+--
+-- Name: COLUMN locations.game_id; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.locations.game_id IS 'The game this location belongs to.';
+
+
+--
+-- Name: COLUMN locations.dlc_id; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.locations.dlc_id IS 'DLC that introduced the location. Null for the base game.';
+
+
+--
+-- Name: COLUMN locations.slug; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.locations.slug IS 'Public URL segment, unique within the game.';
+
+
+--
+-- Name: COLUMN locations.summary; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.locations.summary IS 'Required one-line catalogue summary. No line breaks.';
+
+
+--
+-- Name: COLUMN locations.description; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.locations.description IS 'Longer catalogue prose. No length limit.';
+
+
+--
 -- Name: manufacturers; Type: TABLE; Schema: catalogue; Owner: -
 --
 
@@ -422,6 +486,96 @@ COMMENT ON COLUMN catalogue.manufacturers.summary IS 'Required one-line catalogu
 --
 
 COMMENT ON COLUMN catalogue.manufacturers.description IS 'Longer catalogue prose. No length limit.';
+
+
+--
+-- Name: mission_enemies; Type: TABLE; Schema: catalogue; Owner: -
+--
+
+CREATE TABLE catalogue.mission_enemies (
+    mission_id catalogue.slug NOT NULL,
+    game_id catalogue.slug NOT NULL,
+    enemy_id catalogue.slug NOT NULL
+);
+
+
+--
+-- Name: TABLE mission_enemies; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON TABLE catalogue.mission_enemies IS 'A named enemy or boss that a mission sends you to fight. Not a mob in the area, and not a drop. The same enemy can appear in more than one mission.';
+
+
+--
+-- Name: missions; Type: TABLE; Schema: catalogue; Owner: -
+--
+
+CREATE TABLE catalogue.missions (
+    id catalogue.slug NOT NULL,
+    game_id catalogue.slug NOT NULL,
+    dlc_id catalogue.slug,
+    slug catalogue.slug NOT NULL,
+    name catalogue.non_empty NOT NULL,
+    story boolean NOT NULL,
+    summary catalogue.summary NOT NULL,
+    description catalogue.non_empty
+);
+
+
+--
+-- Name: TABLE missions; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON TABLE catalogue.missions IS 'A mission in one game, such as Skags at the Gate. A drop points at a mission. The reward is a drop, not a column on the mission.';
+
+
+--
+-- Name: COLUMN missions.id; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.missions.id IS 'Stable key within the game, for example skags-at-the-gate.';
+
+
+--
+-- Name: COLUMN missions.game_id; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.missions.game_id IS 'The game this mission belongs to.';
+
+
+--
+-- Name: COLUMN missions.dlc_id; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.missions.dlc_id IS 'DLC that introduced the mission. Null for the base game.';
+
+
+--
+-- Name: COLUMN missions.slug; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.missions.slug IS 'Public URL segment, unique within the game.';
+
+
+--
+-- Name: COLUMN missions.story; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.missions.story IS 'True for a story mission. False for a side mission. An optional objective inside a mission is not its own row.';
+
+
+--
+-- Name: COLUMN missions.summary; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.missions.summary IS 'Required one-line catalogue summary. No line breaks.';
+
+
+--
+-- Name: COLUMN missions.description; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON COLUMN catalogue.missions.description IS 'Longer catalogue prose. No length limit.';
 
 
 --
@@ -642,6 +796,22 @@ ALTER TABLE ONLY catalogue.games
 
 
 --
+-- Name: locations locations_game_id_slug_key; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.locations
+    ADD CONSTRAINT locations_game_id_slug_key UNIQUE (game_id, slug);
+
+
+--
+-- Name: locations locations_pkey; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.locations
+    ADD CONSTRAINT locations_pkey PRIMARY KEY (id, game_id);
+
+
+--
 -- Name: manufacturers manufacturers_pkey; Type: CONSTRAINT; Schema: catalogue; Owner: -
 --
 
@@ -655,6 +825,30 @@ ALTER TABLE ONLY catalogue.manufacturers
 
 ALTER TABLE ONLY catalogue.manufacturers
     ADD CONSTRAINT manufacturers_slug_key UNIQUE (slug);
+
+
+--
+-- Name: mission_enemies mission_enemies_pkey; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.mission_enemies
+    ADD CONSTRAINT mission_enemies_pkey PRIMARY KEY (mission_id, game_id, enemy_id);
+
+
+--
+-- Name: missions missions_game_id_slug_key; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.missions
+    ADD CONSTRAINT missions_game_id_slug_key UNIQUE (game_id, slug);
+
+
+--
+-- Name: missions missions_pkey; Type: CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.missions
+    ADD CONSTRAINT missions_pkey PRIMARY KEY (id, game_id);
 
 
 --
@@ -797,6 +991,54 @@ ALTER TABLE ONLY catalogue.game_rarities
 
 ALTER TABLE ONLY catalogue.game_rarities
     ADD CONSTRAINT game_rarities_rarity_id_fkey FOREIGN KEY (rarity_id) REFERENCES catalogue.rarities(id) ON DELETE CASCADE;
+
+
+--
+-- Name: locations locations_dlc_fkey; Type: FK CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.locations
+    ADD CONSTRAINT locations_dlc_fkey FOREIGN KEY (dlc_id, game_id) REFERENCES catalogue.dlcs(id, game_id);
+
+
+--
+-- Name: locations locations_game_id_fkey; Type: FK CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.locations
+    ADD CONSTRAINT locations_game_id_fkey FOREIGN KEY (game_id) REFERENCES catalogue.games(id);
+
+
+--
+-- Name: mission_enemies mission_enemies_enemy_fkey; Type: FK CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.mission_enemies
+    ADD CONSTRAINT mission_enemies_enemy_fkey FOREIGN KEY (enemy_id, game_id) REFERENCES catalogue.enemies(id, game_id) ON DELETE CASCADE;
+
+
+--
+-- Name: mission_enemies mission_enemies_mission_fkey; Type: FK CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.mission_enemies
+    ADD CONSTRAINT mission_enemies_mission_fkey FOREIGN KEY (mission_id, game_id) REFERENCES catalogue.missions(id, game_id) ON DELETE CASCADE;
+
+
+--
+-- Name: missions missions_dlc_fkey; Type: FK CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.missions
+    ADD CONSTRAINT missions_dlc_fkey FOREIGN KEY (dlc_id, game_id) REFERENCES catalogue.dlcs(id, game_id);
+
+
+--
+-- Name: missions missions_game_id_fkey; Type: FK CONSTRAINT; Schema: catalogue; Owner: -
+--
+
+ALTER TABLE ONLY catalogue.missions
+    ADD CONSTRAINT missions_game_id_fkey FOREIGN KEY (game_id) REFERENCES catalogue.games(id);
 
 
 --

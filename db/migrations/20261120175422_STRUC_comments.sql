@@ -115,5 +115,40 @@ COMMENT ON COLUMN catalogue.enemies.summary IS
 COMMENT ON COLUMN catalogue.enemies.description IS
   'Longer catalogue prose. No length limit.';
 
+COMMENT ON TABLE catalogue.locations IS
+  'A named place in one game, such as Skag Gully. A drop points at a location. The weapon, enemy and mission are separate rows.';
+COMMENT ON COLUMN catalogue.locations.id IS
+  'Stable key within the game, for example skag-gully.';
+COMMENT ON COLUMN catalogue.locations.game_id IS
+  'The game this location belongs to.';
+COMMENT ON COLUMN catalogue.locations.dlc_id IS
+  'DLC that introduced the location. Null for the base game.';
+COMMENT ON COLUMN catalogue.locations.slug IS
+  'Public URL segment, unique within the game.';
+COMMENT ON COLUMN catalogue.locations.summary IS
+  'Required one-line catalogue summary. No line breaks.';
+COMMENT ON COLUMN catalogue.locations.description IS
+  'Longer catalogue prose. No length limit.';
+
+COMMENT ON TABLE catalogue.missions IS
+  'A mission in one game, such as Skags at the Gate. A drop points at a mission. The reward is a drop, not a column on the mission.';
+COMMENT ON COLUMN catalogue.missions.id IS
+  'Stable key within the game, for example skags-at-the-gate.';
+COMMENT ON COLUMN catalogue.missions.game_id IS
+  'The game this mission belongs to.';
+COMMENT ON COLUMN catalogue.missions.dlc_id IS
+  'DLC that introduced the mission. Null for the base game.';
+COMMENT ON COLUMN catalogue.missions.slug IS
+  'Public URL segment, unique within the game.';
+COMMENT ON COLUMN catalogue.missions.story IS
+  'True for a story mission. False for a side mission. An optional objective inside a mission is not its own row.';
+COMMENT ON COLUMN catalogue.missions.summary IS
+  'Required one-line catalogue summary. No line breaks.';
+COMMENT ON COLUMN catalogue.missions.description IS
+  'Longer catalogue prose. No length limit.';
+
+COMMENT ON TABLE catalogue.mission_enemies IS
+  'A named enemy or boss that a mission sends you to fight. Not a mob in the area, and not a drop. The same enemy can appear in more than one mission.';
+
 -- migrate:down
 

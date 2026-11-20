@@ -94,6 +94,50 @@ CREATE TABLE catalogue.enemies (
     REFERENCES catalogue.dlcs (id, game_id)
 );
 
+CREATE TABLE catalogue.locations (
+  id catalogue.slug NOT NULL,
+  game_id catalogue.slug NOT NULL REFERENCES catalogue.games (id),
+  dlc_id catalogue.slug,
+  slug catalogue.slug NOT NULL,
+  name catalogue.non_empty NOT NULL,
+  summary catalogue.summary NOT NULL,
+  description catalogue.non_empty,
+  PRIMARY KEY (id, game_id),
+  UNIQUE (game_id, slug),
+  CONSTRAINT locations_dlc_fkey
+    FOREIGN KEY (dlc_id, game_id)
+    REFERENCES catalogue.dlcs (id, game_id)
+);
+
+CREATE TABLE catalogue.missions (
+  id catalogue.slug NOT NULL,
+  game_id catalogue.slug NOT NULL REFERENCES catalogue.games (id),
+  dlc_id catalogue.slug,
+  slug catalogue.slug NOT NULL,
+  name catalogue.non_empty NOT NULL,
+  story boolean NOT NULL,
+  summary catalogue.summary NOT NULL,
+  description catalogue.non_empty,
+  PRIMARY KEY (id, game_id),
+  UNIQUE (game_id, slug),
+  CONSTRAINT missions_dlc_fkey
+    FOREIGN KEY (dlc_id, game_id)
+    REFERENCES catalogue.dlcs (id, game_id)
+);
+
+CREATE TABLE catalogue.mission_enemies (
+  mission_id catalogue.slug NOT NULL,
+  game_id catalogue.slug NOT NULL,
+  enemy_id catalogue.slug NOT NULL,
+  PRIMARY KEY (mission_id, game_id, enemy_id),
+  CONSTRAINT mission_enemies_mission_fkey
+    FOREIGN KEY (mission_id, game_id)
+    REFERENCES catalogue.missions (id, game_id) ON DELETE CASCADE,
+  CONSTRAINT mission_enemies_enemy_fkey
+    FOREIGN KEY (enemy_id, game_id)
+    REFERENCES catalogue.enemies (id, game_id) ON DELETE CASCADE
+);
+
 -- --------------------------------------------------------------------
 -- Indexes
 -- --------------------------------------------------------------------
@@ -102,6 +146,9 @@ CREATE INDEX enemies_game_kind_idx ON catalogue.enemies (game_id, kind);
 CREATE INDEX enemies_game_family_idx ON catalogue.enemies (game_id, family);
 
 -- migrate:down
+DROP TABLE IF EXISTS catalogue.mission_enemies;
+DROP TABLE IF EXISTS catalogue.missions;
+DROP TABLE IF EXISTS catalogue.locations;
 DROP TABLE IF EXISTS catalogue.enemies;
 DROP TABLE IF EXISTS catalogue.game_manufacturers;
 DROP TABLE IF EXISTS catalogue.manufacturers;
