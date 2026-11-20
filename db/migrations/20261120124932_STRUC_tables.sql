@@ -94,7 +94,7 @@ COMMENT ON COLUMN catalogue.enemies.dlc_id IS
 COMMENT ON COLUMN catalogue.enemies.slug IS
   'Public URL segment, unique within the game.';
 COMMENT ON COLUMN catalogue.enemies.kind IS
-  'named for a unique enemy such as Bone Head. mob for a repeating archetype such as Skag.';
+  'named for a unique enemy that is not a boss, such as Bone Head. boss for a boss, such as Sledge. mob for a repeating archetype such as Skag.';
 COMMENT ON COLUMN catalogue.enemies.family IS
   'Species or archetype, such as skag, bandit or rakk. Shared by every tier of that species.';
 COMMENT ON COLUMN catalogue.enemies.rank IS

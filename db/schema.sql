@@ -29,7 +29,14 @@ CREATE SCHEMA catalogue;
 --
 
 CREATE DOMAIN catalogue.enemy_kind AS text
-	CONSTRAINT enemy_kind_check CHECK ((VALUE = ANY (ARRAY['named'::text, 'mob'::text])));
+	CONSTRAINT enemy_kind_check CHECK ((VALUE = ANY (ARRAY['named'::text, 'boss'::text, 'mob'::text])));
+
+
+--
+-- Name: DOMAIN enemy_kind; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON DOMAIN catalogue.enemy_kind IS 'named for a unique enemy that is not a boss. boss for a boss. mob for a repeating archetype.';
 
 
 --
@@ -41,6 +48,13 @@ CREATE DOMAIN catalogue.non_empty AS text
 
 
 --
+-- Name: DOMAIN non_empty; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON DOMAIN catalogue.non_empty IS 'Text that contains something other than whitespace. Null is still allowed where the column is optional.';
+
+
+--
 -- Name: slug; Type: DOMAIN; Schema: catalogue; Owner: -
 --
 
@@ -49,11 +63,25 @@ CREATE DOMAIN catalogue.slug AS text
 
 
 --
+-- Name: DOMAIN slug; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON DOMAIN catalogue.slug IS 'Lowercase kebab-case key or URL segment, such as bone-head. No spaces, underscores or capitals.';
+
+
+--
 -- Name: summary; Type: DOMAIN; Schema: catalogue; Owner: -
 --
 
 CREATE DOMAIN catalogue.summary AS catalogue.non_empty
 	CONSTRAINT summary_check CHECK (((VALUE)::text !~ '[\n\r]'::text));
+
+
+--
+-- Name: DOMAIN summary; Type: COMMENT; Schema: catalogue; Owner: -
+--
+
+COMMENT ON DOMAIN catalogue.summary IS 'One line of non-empty text. Line breaks are rejected.';
 
 
 SET default_table_access_method = heap;
@@ -163,7 +191,7 @@ COMMENT ON COLUMN catalogue.enemies.slug IS 'Public URL segment, unique within t
 -- Name: COLUMN enemies.kind; Type: COMMENT; Schema: catalogue; Owner: -
 --
 
-COMMENT ON COLUMN catalogue.enemies.kind IS 'named for a unique enemy such as Bone Head. mob for a repeating archetype such as Skag.';
+COMMENT ON COLUMN catalogue.enemies.kind IS 'named for a unique enemy that is not a boss, such as Bone Head. boss for a boss, such as Sledge. mob for a repeating archetype such as Skag.';
 
 
 --
